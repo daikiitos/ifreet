@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>iFreet</title>
+</head>
+<body>
+    <h1><span>iFreet</span></h1>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <p>
+            {% for message in messages %}
+                <h2>{{message}}</h2>
+            {% endfor %}
+        </p>
+        {% endif %}
+    {% endwith %}
+
+    {% if not session['access_token'] %}
+        <a href='/auth'>login</a>
+    {% else %}
+        @{{session['access_token']['screen_name']}}
+        <form action="/tweet" method="post">
+            <textarea name="text" maxlength="140" rows="9" cols="34"></textarea>
+            <br>
+            <select name="time">
+                <option value="30">30m</option>
+                <option value="60">1h</option>
+                <option value="120">2h</option>
+                <option value="240">3h</option>
+                <option value="360">6h</option>
+                <option value="720">12h</option>
+                <option value="1440">24h</option>
+            </select>
+            <input type="submit" value="tweet">
+        </form>
+
+        {% if tweets |length != 0 %}
+            {% for tweet in tweets %}
+                <form action="/delete" method="get">
+                    <p style="margin: 30px;">
+                        <h3 style="white-space: pre-wrap;">{{tweet['text']}}</h3>
+                        <span style="color: gray;">
+                            created at {{tweet['created_at'].astimezone(JST)}}<br>
+                            deleted at {{dels[tweet['id']].astimezone(JST).isoformat(timespec='seconds')}}
+                        </span>
+                        <input type="hidden" name="id" value="{{tweet['id']}}">
+                        <input type="submit" value="cancel delete">
+                    </p>
+                </form>
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+</body>
